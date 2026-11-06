@@ -17,11 +17,12 @@ Shop Pulse is a modern E-Commerce website that provides users with a smooth and 
 
 ## 📂 Project Structure
 ```text
-Shop Pulse/
+E-Commerce Website/
+│
 ├── index.html
-├── style.css
+├── products.js
 ├── script.js
-├── images/
+├── style.css
 └── README.md
 ```
 
