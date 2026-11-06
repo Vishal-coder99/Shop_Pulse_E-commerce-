@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopPulse - Modern E-Commerce Store (300+ Products)</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-banner">
+    <span><i class="fa-solid fa-bolt"></i> Mega Electronics, Fashion & Accessories Fest! 300+ Latest Products Live | Use code <strong>SAVE20</strong></span>
+  </div>
+
+  <!-- Main Amazon/Flipkart Style Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <!-- Logo -->
+      <a href="#" class="brand-logo" onclick="resetFilters(); return false;">
+        <span class="logo-main">Shop<span class="logo-accent">Pulse</span></span>
+        <span class="logo-tagline">Explore <span class="plus">Plus</span> <i class="fa-solid fa-plus-circle"></i></span>
+      </a>
+
+      <!-- Deliver To / Pincode Widget -->
+      <div class="delivery-pincode-btn" onclick="openPincodeModal()">
+        <i class="fa-solid fa-location-dot"></i>
+        <div class="pincode-text">
+          <span class="label">Deliver to</span>
+          <span class="pincode-val" id="headerPincode">Select Pincode</span>
+        </div>
+      </div>
+
+      <!-- Smart Search Bar with Category Dropdown and Autocomplete -->
+      <div class="search-container">
+        <div class="category-dropdown-wrapper">
+          <select id="headerCategorySelect" onchange="onHeaderCategoryChange(this.value)">
+            <option value="All">All Categories (300+)</option>
+            <option value="Electronics">Electronics (100+)</option>
+            <option value="Fashion">Fashion (100+)</option>
+            <option value="Accessories">Accessories (100+)</option>
+          </select>
+        </div>
+        <div class="search-input-wrapper">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search 300+ products (iPhone 16, Jordan 1, Ray-Ban, Tissot...)" 
+            autocomplete="off"
+            oninput="handleSearchInput(event)"
+            onkeydown="handleSearchKey(event)"
+          >
+          <button id="clearSearchBtn" class="clear-search hidden" onclick="clearSearch()">&times;</button>
+          <!-- Autocomplete Suggestions Dropdown -->
+          <div class="autocomplete-dropdown hidden" id="autocompleteDropdown"></div>
+        </div>
+        <button class="search-submit-btn" onclick="triggerSearch()" title="Search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+
+      <!-- Action Navigation: Account, Orders, Wishlist, Cart -->
+      <nav class="header-actions">
+        <!-- User Account / Profile Widget with Dropdown -->
+        <div class="nav-item account-nav" id="accountNavContainer">
+          <div class="account-btn-trigger" onclick="handleAccountClick()">
+            <div class="avatar-circle" id="userAvatar">
+              <i class="fa-regular fa-user"></i>
+            </div>
+            <div class="nav-text">
+              <span class="sub-text" id="userGreeting">Hello, Sign In</span>
+              <span class="main-text" id="userAccountSub">Account & Lists <i class="fa-solid fa-caret-down"></i></span>
+            </div>
+          </div>
+
+          <!-- Account Dropdown Menu (Flipkart / Amazon Style) -->
+          <div class="account-menu-dropdown" id="accountDropdown">
+            <div class="dropdown-user-header" id="dropdownUserHeader">
+              <div class="user-info-text">
+                <strong id="dropdownUserName">Welcome, Guest!</strong>
+                <span id="dropdownUserEmail">Sign in to manage orders & wishlist</span>
+              </div>
+              <button class="primary-btn sm" id="dropdownSignInBtn" onclick="openAuthModal('login')">Sign In</button>
+            </div>
+            <div class="dropdown-links">
+              <a href="javascript:void(0)" onclick="openMyOrdersModal()"><i class="fa-solid fa-box-open"></i> My Orders <span class="orders-count-badge" id="dropdownOrdersCount">0</span></a>
+              <a href="javascript:void(0)" onclick="openWishlistModal()"><i class="fa-regular fa-heart"></i> My Wishlist</a>
+              <a href="javascript:void(0)" onclick="openPincodeModal()"><i class="fa-solid fa-location-dot"></i> Delivery Addresses</a>
+              <a href="javascript:void(0)" id="logoutLink" class="hidden text-danger" onclick="handleLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wishlist -->
+        <button class="nav-item action-btn wishlist-header-btn" onclick="openWishlistModal()" title="View Wishlist">
+          <div class="icon-wrap">
+            <i class="fa-regular fa-heart"></i>
+            <span class="badge" id="wishlistCount">0</span>
+          </div>
+          <span class="action-label">Wishlist</span>
+        </button>
+
+        <!-- Cart -->
+        <button class="nav-item action-btn cart-header-btn" onclick="toggleCart()" title="View Cart">
+          <div class="icon-wrap">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="badge" id="cartCount">0</span>
+          </div>
+          <div class="cart-label-wrap">
+            <span class="sub-text" id="headerCartTotal">$0.00</span>
+            <span class="action-label">Cart</span>
+          </div>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Sub-Header / Quick Category Bar -->
+  <div class="sub-navbar">
+    <div class="subnav-container">
+      <button class="subnav-item all-btn" onclick="toggleMobileSidebar()">
+        <i class="fa-solid fa-bars"></i> All Filters
+      </button>
+      <div class="subnav-links" id="subnavCategories">
+        <a href="javascript:void(0)" class="subnav-link active" onclick="filterCategory('All')">All Products (330)</a>
+        <a href="javascript:void(0)" class="subnav-link" onclick="filterCategory('Electronics')"><i class="fa-solid fa-laptop"></i> Electronics (110)</a>
+        <a href="javascript:void(0)" class="subnav-link" onclick="filterCategory('Fashion')"><i class="fa-solid fa-shirt"></i> Fashion (110)</a>
+        <a href="javascript:void(0)" class="subnav-link" onclick="filterCategory('Accessories')"><i class="fa-solid fa-glasses"></i> Accessories (110)</a>
+        <a href="javascript:void(0)" class="subnav-link deals-link" onclick="filterDeals()"><i class="fa-solid fa-tag"></i> Top Deals (20%+ OFF)</a>
+      </div>
+      <div class="subnav-right">
+        <span class="support-link"><i class="fa-solid fa-shield-halved"></i> 100% Genuine Certified</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Layout Container -->
+  <main class="main-content">
+    <div class="content-wrapper">
+
+      <!-- Left Sidebar Filters (Amazon / Flipkart Style) -->
+      <aside class="sidebar-filters" id="sidebarFilters">
+        <div class="filter-header">
+          <h3><i class="fa-solid fa-sliders"></i> Filters</h3>
+          <button class="clear-all-btn" onclick="resetFilters()">Reset All</button>
+        </div>
+
+        <!-- Filter Section: Categories -->
+        <div class="filter-group">
+          <h4>Category</h4>
+          <div class="category-filter-list" id="categoryFilterList">
+            <label class="filter-radio">
+              <input type="radio" name="catFilter" value="All" checked onchange="filterCategory('All')">
+              <span>All Products (330)</span>
+            </label>
+            <label class="filter-radio">
+              <input type="radio" name="catFilter" value="Electronics" onchange="filterCategory('Electronics')">
+              <span>Electronics (110)</span>
+            </label>
+            <label class="filter-radio">
+              <input type="radio" name="catFilter" value="Fashion" onchange="filterCategory('Fashion')">
+              <span>Fashion (110)</span>
+            </label>
+            <label class="filter-radio">
+              <input type="radio" name="catFilter" value="Accessories" onchange="filterCategory('Accessories')">
+              <span>Accessories (110)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Filter Section: Price Range Slider (Up to $3500 for high-end laptops & gear) -->
+        <div class="filter-group">
+          <div class="price-header">
+            <h4>Max Price</h4>
+            <span class="price-val-tag" id="priceRangeValue">$3500</span>
+          </div>
+          <div class="slider-wrapper">
+            <input 
+              type="range" 
+              id="priceRangeInput" 
+              min="20" 
+              max="3500" 
+              step="50" 
+              value="3500" 
+              oninput="handlePriceRange(this.value)"
+            >
+            <div class="range-labels">
+              <span>$20</span>
+              <span>$1750</span>
+              <span>$3500</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Section: Customer Rating -->
+        <div class="filter-group">
+          <h4>Customer Ratings</h4>
+          <div class="rating-filter-options">
+            <label class="filter-checkbox">
+              <input type="radio" name="ratingFilter" value="4.5" onchange="handleRatingFilter(4.5)">
+              <span>
+                <span class="rating-pill">4.5★ & up</span>
+                <span class="stars-preview">★★★★★</span>
+              </span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="radio" name="ratingFilter" value="4" onchange="handleRatingFilter(4)">
+              <span>
+                <span class="rating-pill">4.0★ & up</span>
+                <span class="stars-preview">★★★★☆</span>
+              </span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="radio" name="ratingFilter" value="0" checked onchange="handleRatingFilter(0)">
+              <span>All Ratings</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Filter Section: Discount -->
+        <div class="filter-group">
+          <h4>Discount %</h4>
+          <div class="discount-filter-options">
+            <label class="filter-checkbox">
+              <input type="radio" name="discountFilter" value="30" onchange="handleDiscountFilter(30)">
+              <span>30% or more</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="radio" name="discountFilter" value="20" onchange="handleDiscountFilter(20)">
+              <span>20% or more</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="radio" name="discountFilter" value="10" onchange="handleDiscountFilter(10)">
+              <span>10% or more</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="radio" name="discountFilter" value="0" checked onchange="handleDiscountFilter(0)">
+              <span>All Discounts</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Filter Section: Availability -->
+        <div class="filter-group">
+          <h4>Availability</h4>
+          <label class="filter-checkbox">
+            <input type="checkbox" id="inStockOnly" onchange="handleInStockOnly(this.checked)">
+            <span>Exclude Out of Stock</span>
+          </label>
+        </div>
+
+        <button class="mobile-apply-btn" onclick="toggleMobileSidebar()">Apply Filters</button>
+      </aside>
+
+      <!-- Right Main Products Area -->
+      <section class="products-section">
+        <!-- Top Controls Bar: Result Count & Sort Options -->
+        <div class="products-header-bar">
+          <div class="results-info">
+            <span class="results-count" id="resultsCount">Showing all products</span>
+            <span class="active-filter-tags" id="activeFilterTags"></span>
+          </div>
+
+          <div class="sort-controls">
+            <label for="sortSelect"><i class="fa-solid fa-arrow-down-short-wide"></i> Sort By:</label>
+            <select id="sortSelect" onchange="handleSortChange(this.value)">
+              <option value="featured">Featured / Popular</option>
+              <option value="price-low-high">Price: Low to High</option>
+              <option value="price-high-low">Price: High to Low</option>
+              <option value="rating">Customer Rating</option>
+              <option value="newest">Newest First</option>
+              <option value="discount">Highest Discount</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Products Grid Container -->
+        <div class="products-grid" id="productGrid">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Pagination / Load More Button -->
+        <div class="load-more-container" id="loadMoreContainer">
+          <button class="load-more-btn" id="loadMoreBtn" onclick="loadMoreProducts()">
+            <i class="fa-solid fa-angles-down"></i> Load More Products (<span id="loadMoreRemain">0</span> remaining)
+          </button>
+        </div>
+
+        <!-- Empty State (When no products match filters) -->
+        <div class="empty-state hidden" id="emptyState">
+          <div class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <h3>No matching products found</h3>
+          <p>Try adjusting your search query, price slider or category filter.</p>
+          <button class="primary-btn" onclick="resetFilters()">Reset All Filters</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Product Detail Page (PDP)                         -->
+  <!-- ======================================================== -->
+  <div class="modal-backdrop" id="pdpModalBackdrop" onclick="closePdpModal(event)">
+    <div class="pdp-modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closePdpModal()">&times;</button>
+      
+      <div class="pdp-grid">
+        <!-- Left: Image Gallery & Zoom Preview -->
+        <div class="pdp-gallery">
+          <div class="pdp-main-image-wrap" id="pdpMainImageWrap" onmousemove="zoomImage(event)" onmouseleave="resetZoom()">
+            <img id="pdpMainImg" src="" alt="Product Detail">
+            <span class="pdp-discount-badge" id="pdpDiscountBadge"></span>
+          </div>
+          <!-- Thumbnails Strip -->
+          <div class="pdp-thumbnails" id="pdpThumbnails"></div>
+        </div>
+
+        <!-- Right: Product Info & Actions -->
+        <div class="pdp-details">
+          <div class="pdp-brand" id="pdpBrand">Brand Name</div>
+          <h2 class="pdp-title" id="pdpTitle">Product Full Title</h2>
+
+          <!-- Rating & Review Count -->
+          <div class="pdp-rating-row">
+            <span class="rating-badge" id="pdpRatingBadge">
+              <span id="pdpRatingVal">4.5</span> <i class="fa-solid fa-star"></i>
+            </span>
+            <span class="pdp-rating-count" id="pdpRatingCount">(128 ratings & reviews)</span>
+            <span class="pdp-assured-tag"><i class="fa-solid fa-circle-check"></i> Assured</span>
+          </div>
+
+          <!-- Pricing Section -->
+          <div class="pdp-price-row">
+            <span class="pdp-curr-price" id="pdpPrice">$0.00</span>
+            <span class="pdp-mrp" id="pdpMrp">$0.00</span>
+            <span class="pdp-saving-text" id="pdpSavingText">20% off</span>
+          </div>
+          <div class="pdp-tax-note">Inclusive of all applicable taxes</div>
+
+          <!-- Stock Indicator -->
+          <div class="pdp-stock-status" id="pdpStockStatus">
+            <i class="fa-solid fa-circle-check"></i> In Stock
+          </div>
+
+          <!-- Available Offers -->
+          <div class="pdp-offers-box">
+            <div class="offers-title"><i class="fa-solid fa-tag"></i> Available Offers</div>
+            <ul class="offers-list">
+              <li><strong>Special Promo:</strong> Flat 20% Instant Discount with coupon <strong>SAVE20</strong>.</li>
+              <li><strong>Bank Offer:</strong> Extra $10 off with code <strong>FIRST10</strong> on orders over $50.</li>
+              <li><strong>Free Shipping:</strong> Free express delivery on all orders over $50.</li>
+            </ul>
+          </div>
+
+          <!-- Delivery Pincode Checker -->
+          <div class="pdp-pincode-checker">
+            <label for="pdpPincodeInput"><i class="fa-solid fa-truck-fast"></i> Check Delivery Availability:</label>
+            <div class="pincode-input-row">
+              <input type="text" id="pdpPincodeInput" placeholder="Enter 6-digit Pincode" maxlength="6">
+              <button class="check-pincode-btn" onclick="checkPdpDelivery()">Check</button>
+            </div>
+            <div class="pincode-result" id="pdpPincodeResult"></div>
+          </div>
+
+          <!-- Specifications Highlights -->
+          <div class="pdp-specs">
+            <h4>Highlights & Key Specifications</h4>
+            <ul id="pdpHighlights"></ul>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="pdp-actions">
+            <button class="btn-add-cart" id="pdpAddCartBtn" onclick="pdpAddToCart()">
+              <i class="fa-solid fa-cart-plus"></i> Add to Cart
+            </button>
+            <button class="btn-buy-now" id="pdpBuyNowBtn" onclick="pdpBuyNow()">
+              <i class="fa-solid fa-bolt"></i> Buy Now
+            </button>
+            <button class="btn-wishlist-pdp" id="pdpWishlistBtn" onclick="togglePdpWishlist()" title="Add to Wishlist">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+
+          <!-- Ratings & Customer Reviews Section -->
+          <div class="pdp-reviews-section">
+            <div class="reviews-header">
+              <h4>Customer Reviews & Ratings</h4>
+              <button class="write-review-toggle" onclick="toggleReviewForm()">Write a Review</button>
+            </div>
+
+            <!-- Review submission form -->
+            <div class="review-form hidden" id="reviewForm">
+              <h5>Share your review</h5>
+              <div class="star-rating-select" id="starRatingSelect">
+                <span data-star="1" onclick="setStarRating(1)">★</span>
+                <span data-star="2" onclick="setStarRating(2)">★</span>
+                <span data-star="3" onclick="setStarRating(3)">★</span>
+                <span data-star="4" onclick="setStarRating(4)">★</span>
+                <span data-star="5" onclick="setStarRating(5)">★</span>
+              </div>
+              <input type="text" id="reviewAuthor" placeholder="Your name">
+              <textarea id="reviewComment" rows="2" placeholder="Write your experience..."></textarea>
+              <button class="submit-review-btn" onclick="submitReview()">Submit Review</button>
+            </div>
+
+            <!-- Reviews list -->
+            <div class="reviews-list" id="pdpReviewsList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- DRAWER: Interactive Cart Drawer                          -->
+  <!-- ======================================================== -->
+  <div class="cart-backdrop" id="cartBackdrop" onclick="toggleCart()"></div>
+  <aside class="cart-drawer" id="cartDrawer">
+    <!-- Header -->
+    <div class="cart-header">
+      <div class="cart-header-title">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <h3>My Cart (<span id="drawerCartCount">0</span>)</h3>
+      </div>
+      <button onclick="toggleCart()" class="drawer-close-btn" title="Close Cart">&times;</button>
+    </div>
+
+    <!-- Free Delivery Progress Bar -->
+    <div class="free-delivery-bar" id="freeDeliveryBanner">
+      <div class="free-delivery-text" id="freeDeliveryText">Add $50 more to unlock <strong>FREE Delivery</strong></div>
+      <div class="progress-track">
+        <div class="progress-fill" id="freeDeliveryFill" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- Items Container -->
+    <div class="cart-items-scroll" id="cartItems">
+      <div class="empty-cart-view">
+        <i class="fa-solid fa-basket-shopping"></i>
+        <p>Your cart is empty!</p>
+        <button class="primary-btn sm" onclick="toggleCart()">Start Shopping</button>
+      </div>
+    </div>
+
+    <!-- Footer & Price Breakdown -->
+    <div class="cart-footer" id="cartFooter">
+      <!-- Coupon Code Section -->
+      <div class="coupon-section">
+        <div class="coupon-input-wrap">
+          <i class="fa-solid fa-ticket"></i>
+          <input type="text" id="couponInput" placeholder="Enter Coupon Code (e.g. SAVE20)" uppercase>
+          <button class="apply-coupon-btn" onclick="applyCoupon()">Apply</button>
+        </div>
+        <div class="coupon-status" id="couponStatus"></div>
+        <div class="coupon-tags-hint">
+          Available: <span class="badge-hint" onclick="fillCoupon('SAVE20')">SAVE20</span>
+          <span class="badge-hint" onclick="fillCoupon('FIRST10')">FIRST10</span>
+          <span class="badge-hint" onclick="fillCoupon('FLIPKART50')">FLIPKART50</span>
+        </div>
+      </div>
+
+      <!-- Price Breakdown -->
+      <div class="price-breakdown">
+        <h4>Price Details</h4>
+        <div class="breakdown-row">
+          <span>Price (<span id="breakdownItemCount">0</span> items)</span>
+          <span id="breakdownSubtotal">$0.00</span>
+        </div>
+        <div class="breakdown-row text-success">
+          <span>Discount on MRP</span>
+          <span id="breakdownDiscount">-$0.00</span>
+        </div>
+        <div class="breakdown-row text-success" id="couponDiscountRow" style="display: none;">
+          <span>Coupon Discount (<span id="appliedCouponCode"></span>)</span>
+          <span id="breakdownCouponDiscount">-$0.00</span>
+        </div>
+        <div class="breakdown-row">
+          <span>Delivery Charges</span>
+          <span id="breakdownDelivery">FREE</span>
+        </div>
+        <div class="breakdown-row total-row">
+          <span>Total Amount</span>
+          <span id="breakdownTotal">$0.00</span>
+        </div>
+        <div class="savings-banner" id="savingsBanner">
+          You will save <strong id="totalSavingsAmount">$0.00</strong> on this order!
+        </div>
+      </div>
+
+      <!-- Checkout Button -->
+      <button onclick="startCheckout()" class="checkout-btn" id="proceedCheckoutBtn">
+        Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Wishlist Modal                                    -->
+  <!-- ======================================================== -->
+  <div class="modal-backdrop" id="wishlistModalBackdrop" onclick="closeWishlistModal(event)">
+    <div class="modal-card wishlist-modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fa-regular fa-heart"></i> My Wishlist (<span id="wishlistModalCount">0</span>)</h3>
+        <button class="modal-close-btn" onclick="closeWishlistModal()">&times;</button>
+      </div>
+      <div class="wishlist-body" id="wishlistBody">
+        <p class="empty-msg">Your wishlist is empty.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Comprehensive User Authentication (Login / OTP / Signup) -->
+  <!-- ======================================================== -->
+  <div class="modal-backdrop" id="authModalBackdrop" onclick="closeAuthModal(event)">
+    <div class="modal-card auth-modal" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closeAuthModal()">&times;</button>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="loginTabBtn" onclick="switchAuthTab('login')">Password Login</button>
+        <button class="auth-tab-btn" id="otpTabBtn" onclick="switchAuthTab('otp')">Login with OTP</button>
+        <button class="auth-tab-btn" id="signupTabBtn" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- 1. Password Login Form -->
+      <form id="loginForm" class="auth-form" onsubmit="handlePasswordLogin(event)">
+        <h4>Welcome to ShopPulse</h4>
+        <p class="auth-sub">Access your 300+ wishlist items, orders & member discounts</p>
+        
+        <div class="form-group">
+          <label>Email Address or Mobile Number</label>
+          <input type="text" id="loginIdentifier" placeholder="e.g. vishal@example.com or 9876543210" required>
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label>Password</label>
+            <a href="javascript:void(0)" class="forgot-link" onclick="handleForgotPassword()">Forgot?</a>
+          </div>
+          <div class="password-input-wrap">
+            <input type="password" id="loginPassword" placeholder="Enter password (e.g. 123456)" required>
+            <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('loginPassword', this)">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="primary-btn w-100"><i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In</button>
+        
+        <div class="demo-login-box">
+          <span class="demo-tag">Quick 1-Click Demo Logins:</span>
+          <div class="demo-btn-group">
+            <button type="button" class="btn-demo" onclick="quickDemoLogin('vishal')">👤 Vishal Gupta (Customer)</button>
+            <button type="button" class="btn-demo" onclick="quickDemoLogin('rohit')">👤 Rohit Sharma (VIP Member)</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- 2. OTP Login Form (Flipkart Style) -->
+      <form id="otpForm" class="auth-form hidden" onsubmit="handleOtpSubmit(event)">
+        <h4>Instant OTP Login</h4>
+        <p class="auth-sub">Enter your mobile or email to receive a 4-digit verification code</p>
+
+        <!-- Step A: Enter Phone/Email -->
+        <div id="otpStepRequest">
+          <div class="form-group">
+            <label>Mobile Number or Email</label>
+            <input type="text" id="otpIdentifier" placeholder="10-digit mobile or email" required>
+          </div>
+          <button type="button" class="primary-btn w-100" onclick="requestOtpCode()">
+            Send Verification OTP <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+
+        <!-- Step B: Enter Received 4-Digit OTP -->
+        <div id="otpStepVerify" class="hidden">
+          <div class="otp-banner-hint" id="otpBannerHint">
+            <i class="fa-solid fa-envelope-open-text"></i> OTP sent to <strong id="otpSentTarget"></strong>.<br>
+            <span class="test-code-badge">Demo OTP: <strong id="simulatedOtpCode">1234</strong></span>
+          </div>
+
+          <div class="form-group">
+            <label>Enter 4-Digit OTP Code</label>
+            <div class="otp-inputs-grid">
+              <input type="text" class="otp-digit" maxlength="1" oninput="handleOtpDigit(this, 1)" id="otp1" autofocus>
+              <input type="text" class="otp-digit" maxlength="1" oninput="handleOtpDigit(this, 2)" id="otp2">
+              <input type="text" class="otp-digit" maxlength="1" oninput="handleOtpDigit(this, 3)" id="otp3">
+              <input type="text" class="otp-digit" maxlength="1" oninput="handleOtpDigit(this, 4)" id="otp4">
+            </div>
+          </div>
+
+          <button type="submit" class="primary-btn w-100">
+            Verify & Continue <i class="fa-solid fa-check"></i>
+          </button>
+          <div class="text-center mt-2">
+            <button type="button" class="btn-link-sm" onclick="requestOtpCode()">Resend OTP</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- 3. Sign Up Form -->
+      <form id="signupForm" class="auth-form hidden" onsubmit="handleSignup(event)">
+        <h4>Create a ShopPulse Account</h4>
+        <p class="auth-sub">Join 100,000+ members enjoying fastest delivery & deals</p>
+        
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="signupName" placeholder="e.g. Vishal Gupta" required>
+        </div>
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" id="signupEmail" placeholder="e.g. vishal@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Mobile Number *</label>
+          <input type="tel" id="signupPhone" placeholder="10-digit phone number" required>
+        </div>
+        <div class="form-group">
+          <label>Create Password *</label>
+          <div class="password-input-wrap">
+            <input type="password" id="signupPassword" placeholder="Minimum 6 characters" required oninput="checkPasswordStrength(this.value)">
+            <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('signupPassword', this)">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <div class="pwd-strength-bar">
+            <div class="pwd-strength-fill" id="pwdStrengthFill"></div>
+          </div>
+          <span class="pwd-strength-label" id="pwdStrengthLabel">Enter password</span>
+        </div>
+
+        <button type="submit" class="primary-btn w-100"><i class="fa-solid fa-user-plus"></i> Register Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: My Orders & Tracking                              -->
+  <!-- ======================================================== -->
+  <div class="modal-backdrop" id="ordersModalBackdrop" onclick="closeOrdersModal(event)">
+    <div class="modal-card orders-modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-box-open"></i> My Orders & Tracking (<span id="myOrdersCount">0</span>)</h3>
+        <button class="modal-close-btn" onclick="closeOrdersModal()">&times;</button>
+      </div>
+      <div class="orders-modal-body" id="ordersModalBody">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Delivery Pincode Selector                         -->
+  <!-- ======================================================== -->
+  <div class="modal-backdrop" id="pincodeModalBackdrop" onclick="closePincodeModal(event)">
+    <div class="modal-card pincode-modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-location-dot"></i> Choose your delivery location</h3>
+        <button class="modal-close-btn" onclick="closePincodeModal()">&times;</button>
+      </div>
+      <p class="modal-sub">Fastest shipping options & discounts update for your locality.</p>
+      
+      <div class="pincode-custom-input">
+        <input type="text" id="customPincodeInput" placeholder="Enter 6-digit Pincode" maxlength="6">
+        <button class="primary-btn" onclick="saveCustomPincode()">Apply</button>
+      </div>
+
+      <div class="quick-cities-list">
+        <div class="quick-city" onclick="selectQuickPincode('110001', 'New Delhi')">
+          <strong>110001</strong> - New Delhi (Express 24h Delivery)
+        </div>
+        <div class="quick-city" onclick="selectQuickPincode('400001', 'Mumbai')">
+          <strong>400001</strong> - Mumbai (Same Day Delivery)
+        </div>
+        <div class="quick-city" onclick="selectQuickPincode('560001', 'Bengaluru')">
+          <strong>560001</strong> - Bengaluru (Instant 4-Hour Delivery)
+        </div>
+        <div class="quick-city" onclick="selectQuickPincode('700001', 'Kolkata')">
+          <strong>700001</strong> - Kolkata (Express 24h Delivery)
+        </div>
+        <div class="quick-city" onclick="selectQuickPincode('10001', 'New York')">
+          <strong>10001</strong> - New York (2 Days Free Shipping)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Multi-Step Real Checkout Flow                     -->
+  <!-- ======================================================== -->
+  <div class="modal-backdrop" id="checkoutModalBackdrop" onclick="closeCheckoutModal(event)">
+    <div class="modal-card checkout-modal" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closeCheckoutModal()">&times;</button>
+
+      <!-- Stepper Indicator -->
+      <div class="checkout-stepper">
+        <div class="step-item active" id="stepIndicator1">
+          <div class="step-num">1</div>
+          <span>Delivery Address</span>
+        </div>
+        <div class="step-line" id="stepLine1"></div>
+        <div class="step-item" id="stepIndicator2">
+          <div class="step-num">2</div>
+          <span>Payment Option</span>
+        </div>
+        <div class="step-line" id="stepLine2"></div>
+        <div class="step-item" id="stepIndicator3">
+          <div class="step-num">3</div>
+          <span>Order Confirmation</span>
+        </div>
+      </div>
+
+      <!-- STEP 1: Delivery Address -->
+      <div class="checkout-step-content" id="checkoutStep1">
+        <h4><i class="fa-solid fa-map-location-dot"></i> Enter Shipping Address</h4>
+        <form id="shippingAddressForm" onsubmit="submitStep1Address(event)">
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label>Full Name *</label>
+              <input type="text" id="shipName" placeholder="e.g. Vishal Gupta" required>
+            </div>
+            <div class="form-group col-6">
+              <label>Phone Number *</label>
+              <input type="tel" id="shipPhone" placeholder="10-digit mobile" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label>Pincode *</label>
+              <input type="text" id="shipPincode" placeholder="6-digit pin" required>
+            </div>
+            <div class="form-group col-6">
+              <label>City *</label>
+              <input type="text" id="shipCity" placeholder="e.g. Bengaluru" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Street Address / Flat / Building *</label>
+            <input type="text" id="shipStreet" placeholder="e.g. Flat 402, Sunshine Residency, Outer Ring Rd" required>
+          </div>
+          <div class="form-group">
+            <label>Address Type</label>
+            <div class="radio-chips">
+              <label><input type="radio" name="addrType" value="Home" checked> Home (All day delivery)</label>
+              <label><input type="radio" name="addrType" value="Work"> Work (10 AM - 6 PM)</label>
+            </div>
+          </div>
+          <div class="step-action-buttons">
+            <button type="button" class="btn-secondary" onclick="closeCheckoutModal()">Cancel</button>
+            <button type="submit" class="primary-btn">Deliver to this Address <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </form>
+      </div>
+
+      <!-- STEP 2: Payment Method -->
+      <div class="checkout-step-content hidden" id="checkoutStep2">
+        <h4><i class="fa-solid fa-wallet"></i> Choose Payment Method</h4>
+        <div class="payable-summary">
+          <span>Amount Payable:</span>
+          <strong id="step2PayableAmount">$0.00</strong>
+        </div>
+
+        <div class="payment-methods-list">
+          <!-- UPI Option -->
+          <label class="payment-option selected" onclick="selectPaymentMethod('upi')">
+            <input type="radio" name="paymentMethod" value="upi" checked>
+            <div class="payment-detail">
+              <div class="payment-title"><i class="fa-solid fa-qrcode"></i> UPI (Google Pay, PhonePe, Paytm, QR)</div>
+              <div class="payment-desc">Scan QR or enter UPI ID for instantaneous payment</div>
+              <div class="upi-subfield" id="upiSubfield">
+                <input type="text" id="upiIdInput" placeholder="username@oksbi / username@paytm" value="shopper@upi">
+              </div>
+            </div>
+          </label>
+
+          <!-- Card Option -->
+          <label class="payment-option" onclick="selectPaymentMethod('card')">
+            <input type="radio" name="paymentMethod" value="card">
+            <div class="payment-detail">
+              <div class="payment-title"><i class="fa-regular fa-credit-card"></i> Credit / Debit / ATM Card</div>
+              <div class="payment-desc">Visa, MasterCard, RuPay, Amex</div>
+              <div class="card-subfields hidden" id="cardSubfield">
+                <input type="text" placeholder="Card Number (4532 ...)" maxlength="19">
+                <div class="form-row mt-2">
+                  <input type="text" placeholder="MM/YY" maxlength="5">
+                  <input type="password" placeholder="CVV" maxlength="3">
+                </div>
+              </div>
+            </div>
+          </label>
+
+          <!-- Cash On Delivery -->
+          <label class="payment-option" onclick="selectPaymentMethod('cod')">
+            <input type="radio" name="paymentMethod" value="cod">
+            <div class="payment-detail">
+              <div class="payment-title"><i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery (COD)</div>
+              <div class="payment-desc">Pay cash or scan QR when item is delivered</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="step-action-buttons">
+          <button type="button" class="btn-secondary" onclick="goToCheckoutStep(1)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+          <button type="button" class="primary-btn pay-now-btn" id="payNowBtn" onclick="processPayment()">
+            Pay & Place Order
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Order Confirmation -->
+      <div class="checkout-step-content hidden" id="checkoutStep3">
+        <div class="order-success-card">
+          <div class="success-animation-icon">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <h3>Order Placed Successfully!</h3>
+          <p class="order-id-text">Order ID: <strong id="confirmedOrderId">#OD1289472910</strong></p>
+          <p class="order-confirm-sub">A confirmation email & SMS has been dispatched with delivery tracking details.</p>
+
+          <div class="order-summary-box" id="confirmedOrderSummary">
+            <!-- Filled via JS -->
+          </div>
+
+          <div class="delivery-estimate-card">
+            <i class="fa-solid fa-truck"></i>
+            <div>
+              <div class="title">Estimated Delivery</div>
+              <div class="date" id="confirmedDeliveryDate">Within 2 Business Days</div>
+            </div>
+          </div>
+
+          <div class="order-confirm-actions">
+            <button class="btn-secondary" onclick="openMyOrdersModal(); closeCheckoutModal();">View My Orders</button>
+            <button class="primary-btn" onclick="finishOrderAndContinue()">Continue Shopping</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h5>ABOUT</h5>
+        <a href="#">Contact Us</a>
+        <a href="#">About Us</a>
+        <a href="#">Careers</a>
+        <a href="#">ShopPulse Stories</a>
+        <a href="#">Corporate Information</a>
+      </div>
+      <div class="footer-col">
+        <h5>HELP</h5>
+        <a href="#">Payments</a>
+        <a href="#">Shipping</a>
+        <a href="#">Cancellation & Returns</a>
+        <a href="#">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h5>CATEGORIES (300+)</h5>
+        <a href="javascript:void(0)" onclick="filterCategory('Electronics')">100+ Electronics</a>
+        <a href="javascript:void(0)" onclick="filterCategory('Fashion')">100+ Fashion & Footwear</a>
+        <a href="javascript:void(0)" onclick="filterCategory('Accessories')">100+ Accessories & Watches</a>
+        <a href="javascript:void(0)" onclick="filterDeals()">Top Discounted Deals</a>
+      </div>
+      <div class="footer-col">
+        <h5>MAIL US</h5>
+        <p>ShopPulse Internet Private Limited,<br>Outer Ring Road, Bengaluru,<br>560103, Karnataka, India</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 ShopPulse.com. All rights reserved. Featuring 330+ Latest Electronics, Fashion & Accessories with full Login system.</p>
+    </div>
+  </footer>
+
+  <!-- Include 330+ Curated Products Dataset first, then Application Engine -->
+  <script src="products.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
